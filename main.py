@@ -1,1 +1,1 @@
-token = {"Authorization": "Basic ***REMOVED***"}
+token = {"Authorization": "Basic"}
