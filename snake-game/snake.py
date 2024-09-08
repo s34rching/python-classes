@@ -2,7 +2,6 @@ from turtle import Turtle
 
 initial_length = 3
 segment_size = 20
-initial_y_coordinate = 0
 turn_angle = 90
 UP = 90
 DOWN = 270
@@ -17,17 +16,26 @@ class Snake:
         self.create()
         self.head = self.segments[0]
 
+    def create_segment(self, x_cor, y_cor):
+        snake_segment = Turtle()
+        snake_segment.shape("square")
+        snake_segment.color("white")
+        snake_segment.penup()
+        snake_segment.goto(x_cor, y_cor)
+        self.segments.append(snake_segment)
+
     def create(self):
         for segment in range(initial_length):
             initial_x_coordinate = 0 - segment * segment_size
+            initial_y_coordinate = 0
 
-            snake_segment = Turtle()
-            snake_segment.shape("square")
-            snake_segment.color("white")
-            snake_segment.penup()
-            snake_segment.goto(initial_x_coordinate, initial_y_coordinate)
-            self.segments.append(snake_segment)
-            self.head = self.segments[0]
+            self.create_segment(initial_x_coordinate, initial_y_coordinate)
+
+    def append_segment(self):
+        new_segment_x = self.segments[len(self.segments) - 1].xcor()
+        new_segment_y = self.segments[len(self.segments) - 1].ycor()
+
+        self.create_segment(new_segment_x, new_segment_y)
 
     def move(self):
         for segment_number in range(len(self.segments) - 1, 0, -1):
