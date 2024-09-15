@@ -8,9 +8,15 @@ def get_phonetic_match(letter):
     return phonetic_alphabet[str.upper(letter)]
 
 
-user_word = input("Word to interpret: ")
-phonetic_interpretation = [get_phonetic_match(letter) for letter in user_word]
+def get_interpretation():
+    try:
+        user_word = input("Word to interpret: ")
+        phonetic_interpretation = [get_phonetic_match(letter) for letter in user_word]
+    except KeyError:
+        print('Only letters accepted as input')
+        get_interpretation()
+    else:
+        print(phonetic_interpretation)
 
-print(data)
-print(user_word)
-print(phonetic_interpretation)
+
+get_interpretation()
