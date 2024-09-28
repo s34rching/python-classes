@@ -7,8 +7,8 @@ import requests
 AMADEUS_API_KEY = os.environ.get("AMADEUS_API_KEY")
 AMADEUS_API_SECRET = os.environ.get("AMADEUS_API_SECRET")
 BASE_URL = "https://test.api.amadeus.com"
-GET_TOKEN_ENDPOINT = "https://test.api.amadeus.com/v1/security/oauth2/token"
-CHEAP_FLIGHTS_ENDPOINT = f"{BASE_URL}/v1/shopping/flight-dates"
+GET_TOKEN_ENDPOINT = f"{BASE_URL}/v1/security/oauth2/token"
+FLIGHT_OFFERS_ENDPOINT = f"{BASE_URL}/v2/shopping/flight-offers"
 CITIES_ENDPOINT = f"{BASE_URL}/v1/reference-data/locations/cities"
 TOKEN_EXPIRES_IN_SECONDS = 1799
 ENVIRONMENT_RESERVED_SECONDS = 5
@@ -36,8 +36,17 @@ def is_token_valid() -> bool:
 
 class FlightSearch:
     def __init__(self):
+        self.home_city = "Denver"
+        self.home_city_iata_code = "DEN"
+        self.currency = "USD"
         self.client = requests.Session()
         self.refresh_token()
+
+    def get_home_city(self):
+        return {
+            "name": self.home_city,
+            "iata_code": self.home_city_iata_code
+        }
 
     def refresh_token(self):
         if not is_token_valid():
@@ -66,7 +75,7 @@ class FlightSearch:
         self.refresh_token()
 
         headers = {
-            {"Authorization": os.environ["AMADEUS_TOKEN"]}
+            "Authorization": os.environ["AMADEUS_TOKEN"]
         }
 
         params = {
@@ -79,25 +88,28 @@ class FlightSearch:
         response = requests.get(CITIES_ENDPOINT, params=params, headers=headers)
         return response.json()
 
-    def get_flights(self):
-        months = 2
-        now = datetime.now()
-        in_six_months = now + relativedelta(months=+months)
-        from_time = now.strftime(ISO_DATETIME_FORMAT)
-        to_time = in_six_months.strftime(ISO_DATETIME_FORMAT)
-
+    def get_flights(self, city_iata_code):
         self.refresh_token()
 
+        months = 6
+        tomorrow = datetime.now() + relativedelta(days=+1)
+        in_six_months = tomorrow + relativedelta(months=+months)
+        from_date = tomorrow.strftime(ISO_DATETIME_FORMAT)
+        to_date = in_six_months.strftime(ISO_DATETIME_FORMAT)
+
         headers = {
-            {"Authorization": os.environ["AMADEUS_TOKEN"]}
+            "Authorization": os.environ["AMADEUS_TOKEN"]
         }
 
         params = {
-            "origin": "BKK",
-            "destination": "CNX",
-            "departureDate": f"{from_time},{to_time}",
-            "currencyCode": "USD"
+            "originLocationCode": self.home_city_iata_code,
+            "destinationLocationCode": city_iata_code,
+            "departureDate": from_date,
+            "returnDate": to_date,
+            "currencyCode": self.currency,
+            "adults": 1,
+            "nonStop": 'true',
         }
 
-        response = requests.get(CHEAP_FLIGHTS_ENDPOINT, params=params, headers=headers)
+        response = requests.get(FLIGHT_OFFERS_ENDPOINT, params=params, headers=headers)
         return response.json()

@@ -3,25 +3,29 @@ import os
 import requests
 
 SHEETY_FLIGHTS_ENDPOINT = os.environ.get("SHEETY_FLIGHTS_ENDPOINT")
-SHEETY_FLIGHTS_AUTH_TOKEN = os.environ.get("SHEETY_FLIGHTS_AUTH_TOKEN")
 
 
 class DataManager:
     def __init__(self):
-        self.headers = {
-            "Authorization": SHEETY_FLIGHTS_AUTH_TOKEN
-        }
         self.client = requests.Session()
         self.destination_cities = self.load_data()
         self.set_iata_codes()
 
     def load_data(self):
-        response = self.client.get(SHEETY_FLIGHTS_ENDPOINT, headers=self.headers)
+        headers = {
+            "Authorization": os.environ.get("SHEETY_FLIGHTS_AUTH_TOKEN")
+        }
+
+        response = self.client.get(SHEETY_FLIGHTS_ENDPOINT, headers=headers)
         data = response.json()
         return data["cities"]
 
     def update_row(self, row_id, data):
-        self.client.put(f"{SHEETY_FLIGHTS_ENDPOINT}/{row_id}", json=data, headers=self.headers)
+        headers = {
+            "Authorization": os.environ.get("SHEETY_FLIGHTS_AUTH_TOKEN")
+        }
+
+        self.client.put(f"{SHEETY_FLIGHTS_ENDPOINT}/{row_id}", json=data, headers=headers)
 
     def set_iata_codes(self):
         flight_search = FlightSearch()
