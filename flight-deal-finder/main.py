@@ -1,4 +1,7 @@
 from data_manager import DataManager
+from flight_search import FlightSearch
 
 data_manager = DataManager()
-cities = data_manager.load_data()
+flightSearch = FlightSearch()
+
+cities = data_manager.get_destination_cities()
