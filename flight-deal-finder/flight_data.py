@@ -23,6 +23,7 @@ class FlightData:
         round_trip_details = lowest_price_flight["itineraries"]
         from_home_flight_departure = round_trip_details[0]["segments"][0]
         to_home_flight_departure = round_trip_details[1]["segments"][0]
+        transfers = len(round_trip_details[0]["segments"]) - 1
 
         return {
             "success": True,
@@ -30,6 +31,7 @@ class FlightData:
             "data": {
                 "target_city": self.target_city["city"],
                 "target_city_airport_iata_code": self.target_city["iataCode"],
+                "transfers": transfers,
                 "trip_start_date": from_home_flight_departure["departure"]["at"],
                 "trip_end_date": to_home_flight_departure["departure"]["at"],
                 "total": lowest_price_flight["price"]["grandTotal"]

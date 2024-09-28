@@ -9,6 +9,7 @@ notifications_manager = NotificationManager()
 
 home_city = flight_search_manager.get_home_city()
 cities = data_manager.get_destination_cities()
+customers = data_manager.get_destination_cities()
 
 for city in cities:
     flights_data = flight_search_manager.get_flights(city["iataCode"])
@@ -17,4 +18,5 @@ for city in cities:
     result = flight_data_manager.find_lowest_price(flights_data)
 
     if result["success"]:
-        notifications_manager.send_message(home_city, result["data"])
+        for customer in customers:
+            notifications_manager.send_email(customer, home_city, result["data"])

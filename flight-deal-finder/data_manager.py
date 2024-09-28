@@ -9,6 +9,7 @@ class DataManager:
     def __init__(self):
         self.client = requests.Session()
         self.destination_cities = self.load_data()
+        self.customers = self.load_customers()
         self.set_iata_codes()
 
     def load_data(self):
@@ -16,9 +17,20 @@ class DataManager:
             "Authorization": os.environ.get("SHEETY_FLIGHTS_AUTH_TOKEN")
         }
 
-        response = self.client.get(SHEETY_FLIGHTS_ENDPOINT, headers=headers)
+        response = self.client.get(f"{SHEETY_FLIGHTS_ENDPOINT}/cities", headers=headers)
         data = response.json()
+
         return data["cities"]
+
+    def load_customers(self):
+        headers = {
+            "Authorization": os.environ.get("SHEETY_FLIGHTS_AUTH_TOKEN")
+        }
+
+        response = self.client.get(f"{SHEETY_FLIGHTS_ENDPOINT}/customers", headers=headers)
+        data = response.json()
+
+        return data["customers"]
 
     def update_row(self, row_id, data):
         headers = {
@@ -47,3 +59,6 @@ class DataManager:
 
     def get_destination_cities(self):
         return self.destination_cities
+
+    def get_customers(self):
+        return self.customers

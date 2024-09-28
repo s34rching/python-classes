@@ -108,7 +108,7 @@ class FlightSearch:
             "returnDate": to_date,
             "currencyCode": self.currency,
             "adults": 1,
-            "nonStop": 'true',
+            "nonStop": 'false',
         }
 
         response = requests.get(FLIGHT_OFFERS_ENDPOINT, params=params, headers=headers)
