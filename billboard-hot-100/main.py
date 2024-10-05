@@ -80,41 +80,42 @@ if target_playlist_id is None:
     create_playlist_data = create_playlist_response.json()
     target_playlist_id = create_playlist_data["id"]
 
+    song_uris = []
+    for mocked_song_data in mocked_songs_data:
+        params = {
+            "q": f"track:{mocked_song_data["title"]} artist: {mocked_song_data["artist"]}",
+            "type": "track",
+            "market": "US"
+        }
 
-song_uris = []
-for mocked_song_data in mocked_songs_data:
-    params = {
-        "q": f"track:{mocked_song_data["title"]} artist: {mocked_song_data["artist"]}",
-        "type": "track",
-        "market": "US"
-    }
+        available_songs_response = requests.get(f"{SPOTIFY_SEARCH_ENDPOINT}", params=params, headers=headers)
+        available_songs_response.raise_for_status()
+        available_songs_data = available_songs_response.json()
 
-    available_songs_response = requests.get(f"{SPOTIFY_SEARCH_ENDPOINT}", params=params, headers=headers)
-    available_songs_response.raise_for_status()
-    available_songs_data = available_songs_response.json()
+        if len(available_songs_data["tracks"]["items"]) > 0:
+            relevant_songs = [song_data for song_data in available_songs_data["tracks"]["items"]
+                              if song_data["name"] == mocked_song_data["title"]]
 
-    if len(available_songs_data["tracks"]["items"]) > 0:
-        relevant_songs = [song_data for song_data in available_songs_data["tracks"]["items"]
-                          if song_data["name"] == mocked_song_data["title"]]
+            if len(relevant_songs) > 0:
+                target_song = relevant_songs[0]
 
-        if len(relevant_songs) > 0:
-            target_song = relevant_songs[0]
+                if "uri" in target_song:
+                    song_uris.append(target_song["uri"])
 
-            if "uri" in target_song:
-                song_uris.append(target_song["uri"])
+    if len(song_uris) > 0:
+        data = {
+            "uris": song_uris
+        }
 
-if len(song_uris) > 0:
-    data = {
-        "uris": song_uris
-    }
-
-    add_songs_response = requests.post(
-        f"{SPOTIFY_PLAYLISTS_ENDPOINT}/{target_playlist_id}/tracks",
-        json=data,
-        headers=headers
-    )
-    add_songs_response.raise_for_status()
-    add_songs_data = add_songs_response.json()
-    print("Available songs were added to a playlist")
+        add_songs_response = requests.post(
+            f"{SPOTIFY_PLAYLISTS_ENDPOINT}/{target_playlist_id}/tracks",
+            json=data,
+            headers=headers
+        )
+        add_songs_response.raise_for_status()
+        add_songs_data = add_songs_response.json()
+        print("Available songs were added to a playlist")
+    else:
+        print("Unable to add songs to the playlist as they are not found...")
 else:
-    print("Unable to add songs to the playlist as they are not found...")
+    print("Playlist for selected date is already exist")
