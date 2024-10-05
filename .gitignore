@@ -1,4 +1,14 @@
+# VENV
 venv/
+
+# IDE
 .idea/
+
+# ENV
 .env
+
+# CACHE
+.cache
+
+# Python modules cache
 **/__pycache__/
