@@ -49,6 +49,7 @@ while datetime.now() < game_end:
         for button in buttons:
             if is_upgrade_active(button):
                 button.click()
+                break
 
         check_time += timedelta(seconds=5)
 
